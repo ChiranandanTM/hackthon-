@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-Powered Dispatch & Resource Management</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <style>
+      :root {
+        --primary: #007bff;
+        --primary-light: #00aaff;
+        --secondary: #007bff;
+        --dark: #333;
+        --light: #fff;
+        --gray: #666;
+        --bg-color: #e6f0fa;
+        --form-bg: #ffffff;
+        --disabled-gray: #ccc;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        min-height: 100vh;
+        overflow-x: hidden;
+        touch-action: manipulation;
+      }
+
+      /* Navbar with active state */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 5%;
+        background-color: var(--light);
+        width: 100%;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        z-index: 100;
+        flex-wrap: wrap;
+      }
+      .navbar a {
+        text-decoration: none;
+      }
+
+      .navbar .brand {
+        color: var(--primary);
+        font-size: clamp(1.2rem, 4vw, 1.4rem);
+        font-weight: 600;
+        letter-spacing: 1px;
+      }
+
+      .navbar .nav-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .navbar .nav-links a {
+          text-decoration: none;
+      }
+
+      .navbar .nav-links button {
+        background-color: var(--light);
+        color: var(--gray);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: clamp(0.9rem, 3vw, 1rem);
+        font-family: "Inter", sans-serif;
+        transition: all 0.3s ease;
+        border: 1px solid #ddd;
+      }
+
+      .navbar .nav-links button.active {
+        background-color: var(--primary);
+        color: var(--light);
+        border-color: var(--primary);
+        box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
+      }
+
+      .navbar .nav-links button:hover:not(.active):not(.disabled) {
+        background-color: #f8f9fa;
+        color: var(--dark);
+      }
+
+      .navbar .nav-links button.disabled {
+        background-color: var(--disabled-gray);
+        color: #999;
+        cursor: not-allowed;
+        border-color: var(--disabled-gray);
+        pointer-events: none;
+      }
+
+      .navbar .user-icon {
+        font-size: clamp(1.2rem, 4vw, 1.4rem);
+        color: var(--gray);
+        order: 1;
+        margin-top: 10px;
+      }
+
+      /* Main content with form */
+      .main-content {
+        margin-top: 80px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+      .main-content a{
+        text-decoration: none;
+      }
+
+      .report-form-container {
+        background-color: var(--form-bg);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 800px;
+        padding: 30px;
+        animation: fadeInUp 0.8s ease;
+        transform-origin: top center;
+      }
+
+      .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+        animation: fadeIn 0.8s ease 0.2s both;
+      }
+
+      .form-header h1 {
+        color: var(--primary);
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+      }
+
+      .form-header p {
+        color: var(--gray);
+        font-size: 1rem;
+      }
+
+      .form-section {
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease 0.4s both;
+      }
+
+      .form-section h2 {
+        color: var(--dark);
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--primary-light);
+        display: inline-block;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+        animation: fadeIn 0.8s ease 0.6s both;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--dark);
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: "Inter", sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        outline: none;
+      }
+
+      /* Location detection button styles */
+      .location-input-group {
+        display: flex;
+        gap: 10px;
+      }
+
+      #detectLocationBtn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 0 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+
+      #detectLocationBtn:hover {
+        background-color: var(--primary-light);
+      }
+
+      #detectLocationBtn:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+      
+      #detectLocationBtn.warning {
+        background-color: var(--warning);
+        color: var(--dark);
+      }
+
+      #locationStatus {
+        display: block;
+        margin-top: 5px;
+        color: var(--gray);
+        font-size: 0.8rem;
+      }
+      
+      #locationStatus.warning {
+          color: var(--warning);
+          font-weight: 500;
+      }
+      
+      #locationStatus.success {
+          color: var(--success);
+          font-weight: 500;
+      }
+
+
+      /* Emergency type sections */
+      .emergency-category {
+        margin-bottom: 25px;
+        background-color: rgba(0, 123, 255, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 3px solid var(--primary);
+      }
+
+      .emergency-category h3 {
+        color: var(--dark);
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 10px;
+      }
+      
+      .radio-group.inline {
+        flex-direction: row;
+        gap: 20px;
+      }
+
+      .radio-option {
+        position: relative;
+      }
+
+      .radio-option input {
+        position: absolute;
+        opacity: 0;
+      }
+
+      .radio-option label {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      .radio-option input:checked + label {
+        border-color: var(--primary);
+        background-color: rgba(0, 123, 255, 0.1);
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      .radio-option:hover label {
+        background-color: #f0f0f0;
+      }
+
+      .radio-option i {
+        margin-right: 8px;
+        font-size: 1.2rem;
+      }
+
+      .emergency-subtype {
+        display: none;
+        margin-top: 15px;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .emergency-subtype.active {
+        display: block;
+      }
+
+      /* Severity levels */
+      .severity-levels {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .severity-level {
+        flex: 1;
+        position: relative;
+      }
+
+      .severity-level input {
+        position: absolute;
+        opacity: 0;
+      }
+
+      .severity-level label {
+        display: block;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        position: relative;
+      }
+
+      .severity-level:nth-child(1) label {
+        background-color: #ff6b6b;
+        color: white;
+      }
+
+      .severity-level:nth-child(2) label {
+        background-color: #ffc107;
+        color: var(--dark);
+      }
+
+      .severity-level:nth-child(3) label {
+        background-color: #20c997;
+        color: white;
+      }
+
+      .severity-level input:checked + label {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .severity-level label::after {
+        content: "";
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        color: currentColor;
+        font-size: 1rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .severity-level input:checked + label::after {
+        content: "\f058";
+        opacity: 1;
+      }
+
+      textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      /* Enhanced Dispatch Button */
+      .dispatch-btn {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-light)
+        );
+        color: white;
+        border: none;
+        padding: 18px 30px;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+        margin-top: 30px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+        animation: fadeInUp 0.8s ease 0.8s both;
+        position: relative;
+        overflow: hidden;
+      }
+
+
+      .dispatch-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+      }
+
+      .dispatch-btn:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+
+      .dispatch-btn i {
+        margin-right: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .dispatch-btn.success {
+        background: linear-gradient(135deg, var(--success), #5cb85c);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+      }
+
+      .dispatch-btn.success:hover {
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.6);
+      }
+
+      .dispatch-btn:disabled {
+        background: var(--disabled-gray);
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none;
+      }
+
+      .dispatch-btn::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .dispatch-btn:hover::after {
+        transform: translateX(0);
+      }
+
+      /* Styles for the microphone button */
+      .notes-container {
+        position: relative;
+      }
+
+      #mic-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--primary);
+        transition: color 0.3s ease;
+      }
+
+      #mic-btn:hover {
+        color: var(--primary-light);
+      }
+
+      #mic-btn.is-recording {
+        color: var(--danger);
+        animation: pulse 1s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: translateY(-50%) scale(1);
+        }
+        50% {
+          transform: translateY(-50%) scale(1.2);
+        }
+        100% {
+          transform: translateY(-50%) scale(1);
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          padding: 10px;
+        }
+
+        .navbar .nav-links {
+          margin-top: 10px;
+          width: 100%;
+          justify-content: space-around;
+          order: 1;
+        }
+
+        .navbar .user-icon {
+          margin-top: 10px;
+          order: 2;
+        }
+
+        .navbar .nav-links button {
+          width: 30%;
+          padding: 8px;
+        }
+
+        .main-content {
+          margin-top: 100px;
+          padding: 10px;
+        }
+
+        .report-form-container {
+          padding: 20px;
+        }
+
+        .location-input-group {
+          flex-direction: column;
+        }
+
+        #detectLocationBtn {
+          width: 100%;
+          padding: 12px;
+        }
+
+        .severity-levels {
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .form-header h1 {
+          font-size: 1.5rem;
+        }
+
+        .navbar .nav-links button {
+          width: 28%;
+          font-size: 0.85rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+  
+    <div class="navbar">
+      <a href="index.html"
+        ><div class="brand">AI-Powered Dispatch & Resource Management</div></a
+      >
+      <div class="nav-links">
+        <a href="report.html"><button class="active">Report</button></a>
+        <a href="monitor.html"><button>Monitor</button></a>
+        <a href="maps.html"><button>Maps</button></a>
+      </div>
+      <i class="fas fa-user user-icon"></i>
+    </div>
+
+    <div class="main-content">
+      <div class="report-form-container animate__animated animate__fadeIn">
+        <div class="form-header">
+          <h1>Emergency Report</h1>
+          <p>Please provide details about the emergency situation</p>
+        </div>
+
+        <form id="emergencyForm">
+          <div class="form-section">
+            <h2>Location</h2>
+            <div class="form-group">
+              <label for="location">Enter Location or Detect Manually</label>
+              <div class="location-input-group">
+                <input
+                  type="text"
+                  id="location"
+                  class="form-control"
+                  placeholder="Type address or click to detect location"
+                  required
+                />
+                <button type="button" id="detectLocationBtn">
+                  <i class="fas fa-location-arrow"></i> Detect
+                </button>
+              </div>
+              <small id="locationStatus"></small>
+            </div>
+
+            <div class="form-group">
+              <h2>Type of Emergency</h2>
+
+              <div class="emergency-category">
+                <h3>Select Emergency Type</h3>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="justAmbulance"
+                      name="emergencyCategory"
+                      value="justAmbulance"
+                      checked
+                    />
+                    <label for="justAmbulance"
+                      ><i class="fas fa-ambulance"></i> Just Ambulance</label
+                    >
+                  </div>
+                  <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="medicalPolice"
+                      name="emergencyCategory"
+                      value="medicalPolice"
+                    />
+                    <label for="medicalPolice"
+                      ><i class="fas fa-shield-alt"></i> Medical Emergency +
+                      Police Complaint</label
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div id="justAmbulanceOptions">
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="medicalEmergency"
+                      name="ambulanceType"
+                      value="Medical Emergency"
+                      checked
+                    />
+                    <label for="medicalEmergency"
+                      ><i class="fas fa-procedures"></i> Medical
+                      Emergency</label
+                    >
+                  </div>
+                   <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="trafficAccident"
+                      name="ambulanceType"
+                      value="Road Traffic Accident"
+                    />
+                    <label for="trafficAccident"
+                      ><i class="fas fa-car-crash"></i> Road Traffic
+                      Accident</label
+                    >
+                  </div>
+                  <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="otherMedical"
+                      name="ambulanceType"
+                      value="other"
+                    />
+                    <label for="otherMedical"
+                      ><i class="fas fa-question-circle"></i> Other
+                      (Specify)</label
+                    >
+                  </div>
+                </div>
+
+                <div class="emergency-subtype" id="otherMedicalDetails">
+                  <div class="form-group">
+                    <label for="otherMedicalText"
+                      >Please specify the medical emergency</label
+                    >
+                    <input
+                      type="text"
+                      id="otherMedicalText"
+                      class="form-control"
+                      placeholder="Describe the medical emergency"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="emergency-subtype" id="medicalPoliceOptions">
+                <div class="radio-group">
+                   <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="policeTrafficAccident"
+                      name="policeType"
+                      value="Road Traffic Accident"
+                      checked
+                    />
+                    <label for="policeTrafficAccident"
+                      ><i class="fas fa-car-crash"></i> Road Traffic
+                      Accident</label
+                    >
+                  </div>
+                  <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="workplaceAccident"
+                      name="policeType"
+                      value="Workplace Accident"
+                    />
+                    <label for="workplaceAccident"
+                      ><i class="fas fa-hard-hat"></i> Workplace Accident</label
+                    >
+                  </div>
+                  <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="violentCrime"
+                      name="policeType"
+                      value="Murder/Suicide"
+                    />
+                    <label for="violentCrime"
+                      ><i class="fas fa-user-injured"></i> Murder/Suicide</label
+                    >
+                  </div>
+                  <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="poisoning"
+                      name="policeType"
+                      value="Poisoning/Intoxication/Overdose"
+                    />
+                    <label for="poisoning"
+                      ><i class="fas fa-pills"></i>
+                      Poisoning/Intoxication/Overdose</label
+                    >
+                  </div>
+                  <div class="radio-option">
+                    <input
+                      type="radio"
+                      id="otherComplaint"
+                      name="policeType"
+                      value="other"
+                    />
+                    <label for="otherComplaint"
+                      ><i class="fas fa-exclamation-triangle"></i> Other
+                      (Specify)</label
+                    >
+                  </div>
+                </div>
+
+                <div class="emergency-subtype" id="otherComplaintDetails">
+                  <div class="form-group">
+                    <label for="emergencySpecification"
+                      >Emergency Specification</label
+                    >
+                    <input
+                      type="text"
+                      id="emergencySpecification"
+                      class="form-control"
+                      placeholder="Describe the emergency details"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2>Incident Details</h2>
+             <div class="form-group">
+              <label for="peopleCount">Number Of People Involved</label>
+              <input
+                type="number"
+                id="peopleCount"
+                class="form-control"
+                min="1"
+                value="1"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Severity Level</label>
+              <div class="severity-levels">
+                <div class="severity-level">
+                  <input
+                    type="radio"
+                    id="critical"
+                    name="severity"
+                    value="critical"
+                    checked
+                  />
+                  <label for="critical">Critical</label>
+                </div>
+                <div class="severity-level">
+                  <input
+                    type="radio"
+                    id="serious"
+                    name="severity"
+                    value="serious"
+                  />
+                  <label for="serious">Serious</label>
+                </div>
+                <div class="severity-level">
+                  <input type="radio" id="mild" name="severity" value="mild" />
+                  <label for="mild">Mild</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2>Additional Information</h2>
+            <div class="form-group">
+              <label for="phoneNumber">Contact Phone Number</label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                class="form-control"
+                placeholder="Enter a phone number for updates"
+                required
+              />
+            </div>
+             <div class="form-group">
+                <label>Reporting As</label>
+                <div class="radio-group inline">
+                    <div class="radio-option">
+                        <input type="radio" id="reporterSelf" name="reporterType" value="Self" checked>
+                        <label for="reporterSelf"><i class="fas fa-user"></i> Self</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="reporterWitness" name="reporterType" value="Witness">
+                        <label for="reporterWitness"><i class="fas fa-eye"></i> Witness</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+              <label for="notes">Additional Notes</label>
+              <div class="notes-container">
+                <textarea
+                  id="notes"
+                  class="form-control"
+                  placeholder="Enter any other important details or use the microphone..."
+                ></textarea>
+                <button type="button" id="mic-btn" title="Record incident details">
+                  <i class="fas fa-microphone"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <button class="dispatch-btn" id="dispatchBtn">
+          <i class="fas fa-truck-medical"></i> Dispatch Units
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const detectLocationBtn = document.getElementById("detectLocationBtn");
+      const locationInput = document.getElementById("location");
+      const locationStatus = document.getElementById("locationStatus");
+      const dispatchBtn = document.getElementById("dispatchBtn");
+      const micBtn = document.getElementById('mic-btn');
+      const notesTextarea = document.getElementById('notes');
+
+      let detectedCoordinates = null; 
+      let duplicateWarningShown = false;
+
+      // --- Machine Learning Speech Recognition & Translation ---
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywa9h6Co9ZWhR3R1eg-HHqnKglWzKFBPSdopaw7q7Dxq1twX8toTPtrsKkftIE0Nw7/exec'; 
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition;
+
+      if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false; 
+        recognition.interimResults = false;
+
+        micBtn.addEventListener('click', () => {
+          if (!GOOGLE_SCRIPT_URL.startsWith('https')) {
+              alert('Please set up the Google Apps Script URL in the code to enable translation.');
+              return;
+          }
+          if (micBtn.classList.contains('is-recording')) {
+            recognition.stop();
+          } else {
+            recognition.start();
+          }
+        });
+
+        recognition.onstart = () => {
+          micBtn.classList.add('is-recording');
+          micBtn.querySelector('i').className = 'fas fa-stop-circle';
+          notesTextarea.placeholder = 'Listening... Speak any language.';
+        };
+
+        recognition.onend = () => {
+          micBtn.classList.remove('is-recording');
+          micBtn.querySelector('i').className = 'fas fa-microphone';
+          notesTextarea.placeholder = 'Enter any other important details or use the microphone...';
+        };
+
+        recognition.onresult = async (event) => {
+          const transcript = event.results[0][0].transcript;
+          notesTextarea.value = transcript + '\n\nTranslating to English...';
+          try {
+            const translatedText = await translateText(transcript);
+            notesTextarea.value = translatedText;
+          } catch (error) {
+            console.error('Translation failed:', error);
+            notesTextarea.value = transcript + '\n\n(Sorry, translation failed. Please check the console.)';
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          notesTextarea.placeholder = 'Sorry, I could not understand. Please try again.';
+        };
+
+      } else {
+        micBtn.style.display = 'none';
+        console.warn("Speech Recognition API is not supported in this browser.");
+      }
+      
+      async function translateText(text) {
+          const url = `${GOOGLE_SCRIPT_URL}?text=${encodeURIComponent(text)}`;
+          const response = await fetch(url);
+          const data = await response.json();
+          if (data.status === 'success') {
+              return data.translatedText;
+          } else {
+              throw new Error(data.message || 'Unknown translation error');
+          }
+      }
+      // --- End of ML Section ---
+
+      function getDistance(lat1, lon1, lat2, lon2) {
+          const R = 6371e3; // Earth's radius in meters
+          const φ1 = lat1 * Math.PI / 180;
+          const φ2 = lat2 * Math.PI / 180;
+          const Δφ = (lat2 - lat1) * Math.PI / 180;
+          const Δλ = (lon2 - lon1) * Math.PI / 180;
+          const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          return R * c;
+      }
+
+      async function checkForRecentIncidents(latitude, longitude) {
+          const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+          try {
+              // Check both hospital and police reports for recent incidents
+              const hospitalSnapshot = await db.collection('hospital_incidents')
+                  .where('timestamp', '>', thirtyMinutesAgo)
+                  .get();
+              
+              if (hospitalSnapshot.empty) return false;
+
+              let isDuplicate = false;
+              hospitalSnapshot.forEach(doc => {
+                  const incident = doc.data();
+                  if (incident.latitude && incident.longitude) {
+                      const distance = getDistance(latitude, longitude, incident.latitude, incident.longitude);
+                      if (distance < 100) { // Check if within 100 meters
+                          isDuplicate = true;
+                      }
+                  }
+              });
+              return isDuplicate;
+          } catch (error) {
+              console.error("Error checking for recent incidents:", error);
+              return false; // Fail safe, allow reporting
+          }
+      }
+
+      detectLocationBtn.addEventListener("click", () => {
+        if (!navigator.geolocation) {
+          locationStatus.textContent = "Geolocation is not supported by your browser";
+          locationStatus.className = 'error';
+          return;
+        }
+
+        detectLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
+        detectLocationBtn.disabled = true;
+        dispatchBtn.disabled = true;
+        locationStatus.textContent = "Detecting your location...";
+        locationStatus.className = '';
+
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            const isDuplicate = await checkForRecentIncidents(latitude, longitude);
+            
+            detectedCoordinates = { latitude, longitude };
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                const data = await response.json();
+                const fullAddress = data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                locationInput.value = fullAddress;
+                
+                if (isDuplicate) {
+                    locationStatus.textContent = "Warning: An incident was recently reported here. Proceed if this is a new emergency.";
+                    locationStatus.className = 'warning';
+                    detectLocationBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Report Anyway';
+                    detectLocationBtn.classList.add('warning');
+                    duplicateWarningShown = true;
+                } else {
+                    locationStatus.textContent = "Location found!";
+                    locationStatus.className = 'success';
+                    detectLocationBtn.innerHTML = '<i class="fas fa-check"></i> Detected';
+                }
+                
+                dispatchBtn.disabled = false;
+
+            } catch (error) {
+                locationInput.value = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                locationStatus.textContent = "Location detected (coordinates only).";
+                locationStatus.className = 'success';
+                dispatchBtn.disabled = false;
+            } finally {
+                if (!duplicateWarningShown) {
+                    setTimeout(() => {
+                      detectLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Detect';
+                      detectLocationBtn.disabled = false;
+                    }, 3000);
+                } else {
+                    detectLocationBtn.disabled = false;
+                }
+            }
+          },
+          (error) => {
+            let errorMessage = "An unknown error occurred. Check browser permissions.";
+            locationStatus.textContent = errorMessage;
+            locationStatus.className = 'error';
+            detectLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Detect';
+            detectLocationBtn.disabled = false;
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      });
+
+      locationInput.addEventListener('input', () => {
+          detectedCoordinates = null;
+          dispatchBtn.disabled = false;
+          locationStatus.textContent = '';
+          duplicateWarningShown = false;
+          detectLocationBtn.classList.remove('warning');
+          detectLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Detect';
+      });
+
+      dispatchBtn.addEventListener("click", async function () {
+          if (!document.getElementById('emergencyForm').checkValidity()) {
+              alert("Please fill out all required fields (Location, People Involved, Phone Number).");
+              return;
+          }
+
+          const submitBtn = this;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Dispatching...';
+          submitBtn.disabled = true;
+
+          const emergencyCategory = document.querySelector('input[name="emergencyCategory"]:checked').value;
+          let emergencyType = '';
+
+          if (emergencyCategory === 'justAmbulance') {
+              emergencyType = document.querySelector('input[name="ambulanceType"]:checked').value;
+              if (emergencyType === 'other') emergencyType = document.getElementById('otherMedicalText').value || 'Other Medical';
+          } else {
+              emergencyType = document.querySelector('input[name="policeType"]:checked').value;
+              if (emergencyType === 'other') {
+                  emergencyType = document.getElementById('emergencySpecification').value || "Other Police Matter";
+              }
+          }
+
+          const incidentData = {
+              location: locationInput.value,
+              latitude: detectedCoordinates ? detectedCoordinates.latitude : null,
+              longitude: detectedCoordinates ? detectedCoordinates.longitude : null,
+              emergencyType: emergencyType,
+              peopleCount: document.getElementById('peopleCount').value,
+              severity: document.querySelector('input[name="severity"]:checked').value,
+              phoneNumber: document.getElementById('phoneNumber').value, 
+              reporterType: document.querySelector('input[name="reporterType"]:checked').value,
+              notes: document.getElementById('notes').value,
+              status: 'Dispatched',
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          
+          try {
+              // MODIFICATION: Save all initial reports to hospital_incidents
+              const docRef = await db.collection('hospital_incidents').add(incidentData);
+              const incidentId = docRef.id;
+              
+              sessionStorage.setItem('latestIncidentId', incidentId);
+              
+              submitBtn.innerHTML = '<i class="fas fa-check"></i> Units Dispatched!';
+              submitBtn.classList.add("success");
+              
+              if (emergencyCategory === 'medicalPolice') {
+                  localStorage.setItem('activeIncidentId', incidentId);
+                  setTimeout(() => { window.location.href = 'police-complaint.html'; }, 1500);
+              } else {
+                  setTimeout(() => { window.location.href = 'monitor.html'; }, 1500);
+              }
+          } catch (error) {
+              console.error("Error adding document: ", error);
+              alert("Failed to submit report. Please try again.");
+              submitBtn.innerHTML = '<i class="fas fa-truck-medical"></i> Dispatch Units';
+              submitBtn.disabled = false;
+          }
+      });
+      
+      const emergencyCategoryRadios = document.querySelectorAll('input[name="emergencyCategory"]');
+      const justAmbulanceOptions = document.getElementById("justAmbulanceOptions");
+      const medicalPoliceOptions = document.getElementById("medicalPoliceOptions");
+      const otherMedicalDetails = document.getElementById("otherMedicalDetails");
+      const otherComplaintDetails = document.getElementById("otherComplaintDetails");
+      function updateEmergencyOptions() {
+        const selectedCategory = document.querySelector('input[name="emergencyCategory"]:checked').value;
+        justAmbulanceOptions.style.display = selectedCategory === "justAmbulance" ? "block" : "none";
+        medicalPoliceOptions.style.display = selectedCategory === "medicalPolice" ? "block" : "none";
+        otherMedicalDetails.classList.remove("active");
+        otherComplaintDetails.classList.remove("active");
+      }
+      document.querySelectorAll('input[name="ambulanceType"]').forEach((radio) => {
+          radio.addEventListener("change", function () {
+            otherMedicalDetails.classList.toggle("active", this.value === "other");
+          });
+        });
+      document.querySelectorAll('input[name="policeType"]').forEach((radio) => {
+        radio.addEventListener("change", function () {
+          otherComplaintDetails.classList.toggle("active", this.value === "other");
+        });
+      });
+      emergencyCategoryRadios.forEach((radio) => {
+        radio.addEventListener("change", updateEmergencyOptions);
+      });
+      updateEmergencyOptions();
+    </script>
+    <script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="Bfem5-x9-CO162YEZhexo";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+  </body>
+</html>

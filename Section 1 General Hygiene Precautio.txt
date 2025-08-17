@@ -1,0 +1,228 @@
+Section 1: General Hygiene Precautions
+
+Wash hands frequently with soap and water for at least 20 seconds.
+
+Use alcohol-based sanitizer if soap and water are not available.
+
+Avoid touching your face (eyes, nose, mouth) with unwashed hands.
+
+Cover mouth and nose with a tissue or elbow when sneezing or coughing.
+
+Wear a mask in crowded or high-risk areas.
+
+Section 2: Preventive Health Measures
+
+Eat a balanced diet with fruits, vegetables, whole grains, and lean protein.
+
+Drink at least 2–3 liters of clean water daily.
+
+Exercise at least 30 minutes a day, 5 days a week.
+
+Sleep 7–8 hours every night for proper recovery.
+
+Avoid smoking, alcohol, and recreational drugs.
+
+Section 3: Common Illness Precautions
+
+Cold & Flu
+
+Stay hydrated, rest, and isolate to avoid spreading infection.
+
+Avoid close contact with vulnerable people (elderly, children).
+
+Get annual flu vaccinations if available.
+
+COVID-19 & Respiratory Illness
+
+Wear masks in public areas.
+
+Maintain physical distance.
+
+Get vaccinated and follow booster recommendations.
+
+Monitor symptoms: fever, cough, shortness of breath.
+
+Food Poisoning
+
+Always wash fruits and vegetables before eating.
+
+Cook meat thoroughly to safe temperatures.
+
+Store food at proper refrigeration levels.
+
+Avoid eating street food in unhygienic places.
+
+Chronic Diseases (Diabetes, Hypertension)
+
+Monitor blood sugar and blood pressure regularly.
+
+Take prescribed medications on time.
+
+Avoid high salt, sugar, and processed foods.
+
+Engage in regular physical activity.
+
+Section 4: First Aid Precautions
+
+Bleeding
+
+Apply firm pressure with a clean cloth to stop bleeding.
+
+Keep wound elevated above heart level if possible.
+
+Do not remove objects stuck in the wound.
+
+Burns
+
+Cool the burn with running water (10–20 minutes).
+
+Do not apply ice or toothpaste.
+
+Cover with a sterile non-fluffy dressing.
+
+Fractures & Sprains
+
+Immobilize the injured area using a splint or support.
+
+Apply ice packs wrapped in cloth to reduce swelling.
+
+Do not attempt to straighten broken bones.
+
+Choking
+
+Encourage coughing if the person can breathe.
+
+Perform Heimlich maneuver if airway is blocked.
+
+Call emergency services immediately.
+
+Section 5: Emergency Medical Precautions
+
+Always call emergency numbers in life-threatening cases (e.g., 108 in India, 911 in the US).
+
+Do not delay calling for help.
+
+While waiting, provide first aid without causing harm.
+
+Never give food or drink to unconscious patients.
+
+Record the time of incident (important for stroke, heart attack).
+
+Section 6: Vaccination Precautions
+
+Follow government-recommended immunization schedules for children.
+
+Adults should keep vaccines updated (tetanus, flu, hepatitis, etc.).
+
+Always check for allergies before taking a vaccine.
+
+Report adverse reactions immediately to healthcare providers.
+
+Section 7: Common User Questions & Answers
+
+Q: How can I prevent infections at home?
+A: Wash hands, disinfect surfaces regularly, and avoid sharing personal items.
+
+Q: What should I keep in a home first aid kit?
+A: Bandages, antiseptic, thermometer, gloves, pain relievers, burn ointment, scissors, and basic medicines.
+
+Q: How do I know if I should go to the hospital?
+A: If symptoms are severe, persistent, or life-threatening (e.g., chest pain, breathing difficulty, heavy bleeding).
+
+Q: Can I use antibiotics without prescription?
+A: No, antibiotics should only be taken if prescribed by a doctor to avoid resistance.
+
+Q: What precautions should elderly people take?
+A: Regular health check-ups, balanced diet, exercise, proper medication, and avoiding falls at home.
+
+Section 8: Safety & Daily Precautions
+
+Always wear seat belts and helmets to prevent injury.
+
+Keep emergency numbers saved on your phone.
+
+Store medicines out of reach of children.
+
+Avoid self-medication and consult a doctor when unsure.
+
+Keep chronic condition patients under regular medical supervision.
+
+1. Greetings & Small Talk
+
+Q: Hello / Hi / Hey
+A: Hello! How can I help you today?
+
+Q: How are you?
+A: I’m here and ready to assist you with any questions you have.
+
+Q: What is your name?
+A: I’m your AI assistant, designed to help with emergencies, medical guidance, and general questions.
+
+Q: Thank you
+A: You’re most welcome! Stay safe and take care.
+
+2. General FAQs
+
+Q: What is the emergency number in India?
+A: You can dial 108 for ambulance services, 100 for police, and 101 for fire emergencies.
+
+Q: What is 911?
+A: In the United States, 911 is the general emergency number for police, fire, and medical help.
+
+Q: How do I stay healthy every day?
+A: Eat balanced meals, stay hydrated, exercise regularly, get enough sleep, and avoid stress.
+
+Q: What should I do if I feel unwell?
+A: Rest, monitor your symptoms, and if it worsens, consult a doctor or call an ambulance if it’s serious.
+
+Q: What is first aid?
+A: First aid is the immediate care given to an injured or sick person before professional help arrives.
+
+3. Accident-Specific (from earlier dataset)
+
+Steps to take at accident scenes
+
+How to report accidents
+
+Ambulance and police procedures
+
+Legal & insurance requirements
+
+4. Medical Precautions (from earlier dataset)
+
+Hygiene rules
+
+Chronic disease management
+
+First aid basics
+
+Vaccination
+
+Preventive care
+
+5. Everyday Normal Knowledge
+
+Q: What is the capital of India?
+A: New Delhi.
+
+Q: What is the capital of USA?
+A: Washington, D.C.
+
+Q: Who invented the light bulb?
+A: Thomas Edison is credited, though several inventors contributed.
+
+Q: What is the largest planet?
+A: Jupiter is the largest planet in our solar system.
+
+Q: What’s today’s date?
+A: I cannot access live time in training mode, but your device’s calendar can tell you.
+
+✅ With this combined dataset, your chatbot will:
+
+Handle accidents & medical emergencies.
+
+Give medical precaution advice.
+
+Respond to normal small talk & FAQs.
+
+Answer basic general knowledge.

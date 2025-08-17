@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitor | AI-Powered Dispatch</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+        :root {
+            --primary: #007bff;
+            --primary-light: #00aaff;
+            --dark: #333;
+            --light: #fff;
+            --gray: #666;
+            --bg-color: #e6f0fa;
+            --critical: #ff6b6b;
+            --serious: #ffc107;
+            --mild: #20c997;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5%;
+            background-color: var(--light);
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar a{ text-decoration: none; }
+        .navbar .brand { color: var(--primary); font-size: clamp(1.2rem, 4vw, 1.4rem); font-weight: 600; }
+        .navbar .nav-links { display: flex; gap: 10px; }
+        .navbar .nav-links a { text-decoration: none; }
+        .navbar .nav-links button {
+            background-color: var(--light); color: var(--gray); border: 1px solid #ddd;
+            padding: 8px 16px; border-radius: 20px; cursor: pointer;
+            font-size: clamp(0.9rem, 3vw, 1rem); transition: all 0.3s ease;
+        }
+        .navbar .nav-links button.active {
+            background-color: var(--primary); color: var(--light); border-color: var(--primary);
+            box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
+        }
+        .navbar .user-icon { font-size: clamp(1.2rem, 4vw, 1.4rem); color: var(--gray); }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+        }
+
+        .monitor-container {
+            background-color: var(--light);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+            animation: fadeInUp 0.8s ease;
+            overflow: hidden; /* To keep rounded corners */
+        }
+
+        .monitor-layout {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        #map {
+            width: 100%;
+            height: 400px;
+            background-color: #eee;
+        }
+
+        .details-panel {
+            width: 100%;
+            padding: 25px;
+        }
+        
+        .details-header h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin: 0 0 5px 0;
+        }
+        
+        .details-header p {
+            color: var(--gray);
+            font-size: 1rem;
+            margin: 0 0 20px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .detail-item strong {
+            display: block;
+            color: var(--dark);
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .detail-item span {
+            color: var(--gray);
+            font-size: 1rem;
+            word-wrap: break-word;
+        }
+        
+        .eta-highlight {
+            border-left-color: var(--mild);
+            animation: pulse 1.5s infinite;
+        }
+
+        #severity-banner {
+            padding: 12px;
+            text-align: center;
+            color: var(--light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1rem;
+            transition: background-color 0.5s ease;
+        }
+        
+        #severity-banner.critical { background-color: var(--critical); }
+        #severity-banner.serious { background-color: var(--serious); color: var(--dark); }
+        #severity-banner.mild { background-color: var(--mild); }
+
+        .action-bar {
+            padding: 20px 25px;
+            background-color: #f8f9fa;
+            text-align: right;
+        }
+
+        #downloadPdfBtn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #downloadPdfBtn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .no-incident-view {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .no-incident-view i { font-size: 3rem; color: #ccc; margin-bottom: 15px; }
+        .no-incident-view p { color: var(--gray); font-size: 1.2rem; }
+
+        @media (min-width: 992px) {
+            #map { width: 60%; height: auto; }
+            .details-panel { width: 40%; }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+
+    </style>
+  </head>
+  <body>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script src="https://unpkg.com/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.js"></script>
+
+
+    <div class="navbar">
+      <a href="index.html"><div class="brand">AI-Powered Dispatch & Resource Management</div></a>
+      <div class="nav-links">
+        <a href="report.html"><button>Report</button></a>
+        <a href="monitor.html"><button class="active">Monitor</button></a>
+        <a href="maps.html"><button>Maps</button></a>
+      </div>
+      <i class="fas fa-user user-icon"></i>
+    </div>
+
+    <div class="main-content">
+      <div class="monitor-container" id="monitorContainer">
+        </div>
+    </div>
+
+    <script>
+        const monitorContainer = document.getElementById('monitorContainer');
+        let map, ambulanceMarker, routeLine;
+        let animationInterval;
+        let latestIncidentData = null; 
+
+        const ambulanceIcon = L.icon({
+            iconUrl: 'https://img.icons8.com/color/48/ambulance.png',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+        
+        const incidentIcon = L.icon({
+           iconUrl: 'https://img.icons8.com/ios-filled/50/FA5252/error.png',
+           iconSize: [40, 40],
+           iconAnchor: [20, 40]
+        });
+
+        function getRandomStartPoint(lat, lon, radiusKm) {
+            const radiusInMeters = radiusKm * 1000;
+            const y0 = lat;
+            const x0 = lon;
+            const rd = radiusInMeters / 111300;
+            const u = Math.random();
+            const v = Math.random();
+            const w = rd * Math.sqrt(u);
+            const t = 2 * Math.PI * v;
+            const x = w * Math.cos(t);
+            const y = w * Math.sin(t);
+            const new_x = x / Math.cos(y0 * Math.PI / 180);
+            return [y + y0, new_x + x0];
+        }
+
+        function showNoIncidentView() {
+            monitorContainer.innerHTML = `
+                <div class="no-incident-view">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No active incident to display.</p>
+                </div>
+            `;
+        }
+
+        function displayIncident(incident) {
+            latestIncidentData = incident;
+            const incidentTime = incident.timestamp ? incident.timestamp.toDate().toLocaleTimeString() : 'N/A';
+            const incidentId = `INC-${sessionStorage.getItem('latestIncidentId')?.substring(0, 10).toUpperCase() || 'N/A'}`;
+
+            monitorContainer.innerHTML = `
+                <div class="monitor-layout">
+                    <div id="map"></div>
+                    <div class="details-panel">
+                        <div class="details-header">
+                            <h1 id="incidentId">${incidentId}</h1>
+                            <p>Live Dispatch Monitor</p>
+                        </div>
+                        <div class="details-grid">
+                            <div class="detail-item"><strong>Location</strong><span id="incidentLocation">${incident.location}</span></div>
+                            <div class="detail-item"><strong>Type</strong><span>${incident.emergencyType}</span></div>
+                            <div class="detail-item"><strong>Involved</strong><span>${incident.peopleCount}</span></div>
+                            <div class="detail-item"><strong>Severity</strong><span style="text-transform: capitalize;">${incident.severity}</span></div>
+                            <div class="detail-item"><strong>Status</strong><span>${incident.status}</span></div>
+                            <div class="detail-item"><strong>Time</strong><span>${incidentTime}</span></div>
+                            <div class="detail-item eta-highlight"><strong>Ambulance ETA</strong><span id="eta">Calculating...</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="severity-banner" class="${incident.severity}">
+                    <span>${incident.severity} Severity Incident</span>
+                </div>
+                <div class="action-bar">
+                    <button id="downloadPdfBtn"><i class="fas fa-file-pdf"></i> Download PDF</button>
+                </div>
+            `;
+            
+            document.getElementById('downloadPdfBtn').addEventListener('click', generatePDF);
+            
+            initMapAndSimulate(incident);
+        }
+
+        async function initMapAndSimulate(incident) {
+            if (!incident.latitude || !incident.longitude) {
+                document.getElementById('map').innerHTML = '<p style="text-align:center; padding-top: 20px;">Location coordinates not available for this incident.</p>';
+                return;
+            }
+            if (animationInterval) clearInterval(animationInterval);
+            map = L.map('map').setView([incident.latitude, incident.longitude], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.marker([incident.latitude, incident.longitude], {icon: incidentIcon}).addTo(map).bindPopup("<b>Incident Location</b>").openPopup();
+            try {
+                const startCoords = getRandomStartPoint(incident.latitude, incident.longitude, 5);
+                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startCoords[1]},${startCoords[0]};${incident.longitude},${incident.latitude}?overview=full&geometries=geojson`;
+                const routeResponse = await fetch(osrmUrl);
+                const routeData = await routeResponse.json();
+                if (!routeData.routes || routeData.routes.length === 0) throw new Error("No route found.");
+                const route = routeData.routes[0];
+                const routeCoords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+                routeLine = L.polyline(routeCoords, { color: 'var(--primary)' }).addTo(map);
+                map.fitBounds(routeLine.getBounds());
+                ambulanceMarker = L.marker(startCoords, { icon: ambulanceIcon }).addTo(map);
+                const realDurationSeconds = route.duration;
+                document.getElementById('eta').textContent = `${Math.round(realDurationSeconds / 60)} min`;
+                let step = 0;
+                const totalSteps = routeCoords.length;
+                const ANIMATION_DURATION_MS = 20000;
+                const interval = ANIMATION_DURATION_MS / totalSteps;
+                animationInterval = setInterval(() => {
+                    if (step >= totalSteps) {
+                        clearInterval(animationInterval);
+                        ambulanceMarker.setLatLng([incident.latitude, incident.longitude]);
+                        document.getElementById('eta').textContent = "Arrived!";
+                        return;
+                    }
+                    ambulanceMarker.setLatLng(routeCoords[step]);
+                    step++;
+                }, interval);
+            } catch (error) {
+                console.error("Simulation failed:", error);
+                document.getElementById('eta').textContent = "Unavailable";
+            }
+        }
+        
+        async function generatePDF() {
+            if (!latestIncidentData) {
+                alert("Incident data not loaded yet.");
+                return;
+            }
+        
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const incident = latestIncidentData;
+            const incidentId = `INC-${sessionStorage.getItem('latestIncidentId')?.substring(0, 10).toUpperCase() || 'N/A'}`;
+            const time = incident.timestamp ? new Date(incident.timestamp.toDate()).toLocaleString() : 'N/A';
+        
+            const font = "Helvetica"; 
+        
+            doc.setFont(font, "bold");
+            doc.setFontSize(20);
+            doc.text("Emergency Incident Report", 105, 20, { align: "center" });
+        
+            doc.setFontSize(14);
+            doc.text(`Incident ID: ${incidentId}`, 105, 30, { align: "center" });
+            doc.setLineWidth(0.5);
+            doc.line(20, 35, 190, 35);
+        
+            doc.setFont(font, "bold");
+            doc.setFontSize(12);
+            doc.text("Incident Summary", 20, 45);
+        
+            doc.setFont(font, "normal");
+            const summary = `This is a ${incident.severity} severity report concerning a "${incident.emergencyType}". A total of ${incident.peopleCount} person(s) are involved. The incident was reported by a ${incident.reporterType} at approximately ${time}. The current dispatch status is '${incident.status}'.`;
+            const summaryLines = doc.splitTextToSize(summary, 170); 
+            doc.text(summaryLines, 20, 52);
+        
+            const startY = 52 + (summaryLines.length * 7) + 5;
+            const tableData = [
+                ["Location:", incident.location],
+                ["Time Reported:", time],
+                ["Emergency Type:", incident.emergencyType],
+                ["Severity:", incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)],
+                ["People Involved:", incident.peopleCount],
+                ["Dispatch Status:", incident.status],
+                ["Reported By:", incident.reporterType],
+                ["Contact Number:", incident.phoneNumber],
+                ["Additional Notes:", incident.notes || "None"]
+            ];
+        
+            doc.autoTable({
+                startY: startY,
+                head: [['Detail', 'Information']],
+                body: tableData,
+                theme: 'grid',
+                styles: {
+                    font: font, 
+                    fontSize: 10
+                },
+                headStyles: {
+                    fillColor: [0, 123, 255], 
+                    textColor: 255,
+                    fontStyle: 'bold'
+                },
+                columnStyles: {
+                    0: { fontStyle: 'bold', cellWidth: 40 },
+                    1: { cellWidth: 'auto' }
+                }
+            });
+        
+            doc.save(`Incident-Report-${incidentId}.pdf`);
+        }
+
+        const latestIncidentId = sessionStorage.getItem('latestIncidentId');
+        if (latestIncidentId) {
+            // MODIFICATION: Listen to the hospital_incidents collection
+            db.collection('hospital_incidents').doc(latestIncidentId).onSnapshot(doc => {
+                if (doc.exists) {
+                    displayIncident(doc.data());
+                } else {
+                    showNoIncidentView();
+                }
+            }, error => {
+                console.error("Error fetching incident:", error);
+                showNoIncidentView();
+            });
+        } else {
+            showNoIncidentView();
+        }
+    </script>
+    <script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="Bfem5-x9-CO162YEZhexo";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maps | AI-Powered Dispatch</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+      :root {
+        --primary: #007bff;
+        --primary-light: #00aaff;
+        --secondary: #ff6b6b;
+        --dark: #333;
+        --light: #fff;
+        --gray: #666;
+        --bg-color: #e6f0fa;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+      }
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 5%;
+        background-color: var(--light);
+        width: 100%;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        z-index: 1000;
+        flex-wrap: wrap;
+      }
+      .navbar a {
+        text-decoration: none;
+      }
+      .navbar .brand {
+        color: var(--primary);
+        font-size: clamp(1.2rem, 4vw, 1.4rem);
+        font-weight: 600;
+      }
+      .navbar .nav-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .navbar .nav-links a {
+        text-decoration: none;
+      }
+      .navbar .nav-links button {
+        background-color: var(--light);
+        color: var(--gray);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: clamp(0.9rem, 3vw, 1rem);
+        font-family: "Inter", sans-serif;
+        transition: all 0.3s ease;
+        border: 1px solid #ddd;
+      }
+      .navbar .nav-links button.active {
+        background-color: var(--primary);
+        color: var(--light);
+        border-color: var(--primary);
+        box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
+      }
+      .navbar .user-icon {
+        font-size: clamp(1.2rem, 4vw, 1.4rem);
+        color: var(--gray);
+        order: 1;
+      }
+      .main-content {
+        margin-top: 80px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+      .maps-container {
+        background-color: var(--light);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 1000px;
+        padding: 30px;
+        animation: fadeInUp 0.8s ease;
+      }
+      .maps-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .maps-header h1 {
+        color: var(--primary);
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+      .maps-header p {
+        color: var(--gray);
+        font-size: 1rem;
+      }
+
+      #map {
+        z-index: 1;
+        width: 100%;
+        height: 500px;
+        background-color: #e9ecef;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .maps-container {
+        background-color: var(--light);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 1000px;
+        padding: 30px;
+        animation: fadeInUp 0.8s ease;
+        min-height: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .hospitals-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+      .hospital-card {
+        background-color: var(--light);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        border-left: 6px solid #20c997;
+        border: 1px solid #e0e0e0;
+      }
+      .hospital-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        background-color: #f8f9fa;
+      }
+      .hospital-card h3 {
+        color: #20c997;
+        margin: 0 0 10px 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+      .hospital-card p {
+        color: var(--gray);
+        margin: 5px 0;
+        font-size: 0.9rem;
+      }
+      .hospital-card .distance {
+        color: var(--primary);
+        font-weight: 600;
+        margin-top: 10px;
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <div class="navbar">
+      <a href="index.html"
+        ><div class="brand">AI-Powered Dispatch & Resource Management</div></a
+      >
+      <div class="nav-links">
+        <a href="report.html"><button>Report</button></a>
+        <a href="monitor.html"><button>Monitor</button></a>
+        <button class="active">Maps</button>
+      </div>
+      <i class="fas fa-user user-icon"></i>
+    </div>
+
+    <div class="main-content">
+      <div class="maps-container animate__animated animate__fadeIn">
+        <div id="diagnostics"></div>
+
+        <div class="maps-header">
+          <h1>Nearest Hospitals</h1>
+          <p id="map-status">Locating you...</p>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="hospitals-list" id="hospitalsList"></div>
+      </div>
+    </div>
+
+    <script>
+      const diagnosticsDiv = document.getElementById("diagnostics");
+      const mapStatus = document.getElementById("map-status");
+      const hospitalsList = document.getElementById("hospitalsList");
+      let hospitalMarkers = [];
+
+      const hospitalIcon = L.icon({
+        iconUrl: 'https://i.imghippo.com/files/DoOY3918siU.png',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+      });
+      
+      // --- NEW --- Helper function to calculate distance between two points
+      function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the Earth in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distance in km
+      }
+
+      function runInitialChecks() {
+        diagnosticsDiv.innerHTML = "";
+        let passed = true;
+        if (typeof firebaseConfig === "undefined") {
+          diagnosticsDiv.innerHTML += `<div class='error'><strong>Configuration Error:</strong> 'firebase-config.js' is missing or has an error.</div>`;
+          passed = false;
+        }
+        return passed;
+      }
+
+      function initMap() {
+        const map = L.map("map");
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
+
+        if (navigator.geolocation) {
+          mapStatus.textContent = "Getting your exact location...";
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLocation = [position.coords.latitude, position.coords.longitude];
+              map.setView(userLocation, 13);
+              L.circle(userLocation, { color: "#4285F4", fillColor: "#4285F4", fillOpacity: 0.5, radius: 50 }).addTo(map);
+              mapStatus.textContent = "Searching for hospitals within 5 km...";
+              fetchNearbyHospitals(userLocation, map, hospitalsList);
+            },
+            () => {
+              mapStatus.textContent = "Could not get precise location. Using approximate location...";
+              fetchApproximateLocation(map);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        } else {
+          mapStatus.textContent = "Geolocation not supported. Using default location.";
+          fetchApproximateLocation(map);
+        }
+      }
+
+      async function fetchApproximateLocation(map) {
+        try {
+          const response = await fetch("https://ipapi.co/json/");
+          const data = await response.json();
+          const approxLocation = [data.latitude, data.longitude];
+          map.setView(approxLocation, 13);
+          fetchNearbyHospitals(approxLocation, map, hospitalsList);
+        } catch {
+          const defaultLocation = [12.9716, 77.5946]; // Bangalore
+          map.setView(defaultLocation, 13);
+          fetchNearbyHospitals(defaultLocation, map, hospitalsList);
+        }
+      }
+
+      async function processAndDisplayHospitals(elements, location, map, listElement) {
+          // 1. Calculate distance for each hospital
+          const hospitalsWithDistance = elements.map(place => {
+              const coords = place.center ? [place.center.lat, place.center.lon] : [place.lat, place.lon];
+              place.distance = getDistance(location[0], location[1], coords[0], coords[1]);
+              return place;
+          });
+
+          // 2. Sort by distance (closest first)
+          hospitalsWithDistance.sort((a, b) => a.distance - b.distance);
+
+          // 3. Display the top 4
+          listElement.innerHTML = "";
+          hospitalMarkers.forEach(marker => marker.remove());
+          hospitalMarkers = [];
+          
+          hospitalsWithDistance.slice(0, 4).forEach((place) => {
+              const coords = place.center ? [place.center.lat, place.center.lon] : [place.lat, place.lon];
+              const marker = L.marker(coords, { icon: hospitalIcon })
+                  .addTo(map)
+                  .bindPopup(`<strong>${place.tags.name || 'Unnamed Hospital'}</strong>`);
+              hospitalMarkers.push(marker);
+              createHospitalCard(place, location, listElement);
+          });
+      }
+
+      async function fetchNearbyHospitals(location, map, listElement) {
+        const radius = 5000;
+        const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];(nwr[amenity=hospital](around:${radius},${location[0]},${location[1]}););out center;`;
+        
+        try {
+          const response = await fetch(overpassUrl);
+          const data = await response.json();
+
+          if (data.elements.length > 0) {
+            mapStatus.textContent = `Found ${data.elements.length} hospitals nearby. Showing the closest ones.`;
+            processAndDisplayHospitals(data.elements, location, map, listElement);
+          } else {
+            mapStatus.textContent = "No hospitals found within 5km. Expanding search to 10km...";
+            fetchWiderArea(location, map, listElement);
+          }
+        } catch (error) {
+          mapStatus.textContent = "Error fetching hospitals. Please try again.";
+        }
+      }
+      
+      async function fetchWiderArea(location, map, listElement) {
+        const radius = 10000;
+        const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];(nwr[amenity=hospital](around:${radius},${location[0]},${location[1]}););out center;`;
+
+        try {
+          const response = await fetch(overpassUrl);
+          const data = await response.json();
+
+          if (data.elements.length > 0) {
+            mapStatus.textContent = `Found ${data.elements.length} hospitals in the wider area. Showing the closest ones.`;
+            processAndDisplayHospitals(data.elements, location, map, listElement);
+          } else {
+            mapStatus.textContent = "No hospitals found within 10km.";
+          }
+        } catch (error) {
+          mapStatus.textContent = "Failed to load hospital data.";
+        }
+      }
+
+      async function createHospitalCard(place, origin, listElement) {
+        const placeCoords = place.center ? [place.center.lat, place.center.lon] : [place.lat, place.lon];
+        const name = place.tags.name || "Unnamed Hospital";
+        const address = place.tags["addr:street"] || "Address not available";
+
+        let distanceInfo = "Calculating...",
+          durationInfo = "Calculating...";
+        try {
+          const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin[1]},${origin[0]};${placeCoords[1]},${placeCoords[0]}?overview=false`;
+          const response = await fetch(osrmUrl);
+          const data = await response.json();
+          if (data.routes && data.routes.length > 0) {
+            const distance = data.routes[0].distance / 1000;
+            const duration = data.routes[0].duration / 60;
+            distanceInfo = `${distance.toFixed(1)} km`;
+            durationInfo = `${Math.round(duration)} mins`;
+          }
+        } catch (error) {
+          console.log("Distance calculation error:", error);
+        }
+
+        const card = document.createElement("div");
+        card.className = "hospital-card";
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${placeCoords[0]},${placeCoords[1]}`;
+        card.style.cursor = "pointer";
+        card.onclick = () => {
+          window.open(googleMapsUrl, "_blank");
+        };
+
+        card.innerHTML = `<h3>${name}</h3><p><i class="fas fa-map-marker-alt"></i> ${address}</p><p class="distance"><i class="fas fa-location-arrow"></i> ${distanceInfo} away (${durationInfo})</p>`;
+        listElement.appendChild(card);
+      }
+
+      if (runInitialChecks()) {
+        initMap();
+      }
+    </script>
+    <script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="Bfem5-x9-CO162YEZhexo";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+  </body>
+</html>
